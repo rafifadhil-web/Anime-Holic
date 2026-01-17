@@ -1,0 +1,2205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnimeHolic - Social Streaming Platform</title>
+    
+    <!-- PWA Metadata -->
+    <meta name="theme-color" content="#0D1117">
+    <meta name="description" content="Platform social streaming terpadu bagi penggemar anime">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎌</text></svg>">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-dark: #0D1117;
+            --secondary-dark: #1A1A1A;
+            --accent-color: #8A2BE2;
+            --accent-hover: #9B4DFF;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --border-color: #333;
+            --card-bg: #222;
+            --light-text: #333;
+            --light-bg: #f8f9fa;
+            --light-card: #ffffff;
+            --light-border: #dee2e6;
+        }
+        
+        [data-theme="light"] {
+            --primary-dark: #f8f9fa;
+            --secondary-dark: #e9ecef;
+            --text-primary: #333;
+            --text-secondary: #555;
+            --border-color: #dee2e6;
+            --card-bg: #ffffff;
+            --light-text: #ffffff;
+            --light-bg: #0D1117;
+            --light-card: #1A1A1A;
+            --light-border: #444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4, h5 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background-color: var(--secondary-dark) !important;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.8rem 1rem;
+        }
+        
+        .navbar-brand {
+            color: var(--accent-color) !important;
+            font-weight: 800;
+            font-size: 1.8rem;
+        }
+        
+        .nav-link {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+        }
+        
+        .nav-link.active, .nav-link:hover {
+            color: var(--accent-color) !important;
+        }
+        
+        /* Main Container */
+        .main-container {
+            padding-bottom: 70px; /* For bottom navigation */
+        }
+        
+        /* Bottom Navigation - Mobile */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--secondary-dark);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+        
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+        
+        .bottom-nav-item.active, .bottom-nav-item:hover {
+            color: var(--accent-color);
+        }
+        
+        .bottom-nav-icon {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+        
+        /* Cards */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .anime-card {
+            position: relative;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        
+        .anime-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .anime-card:hover .anime-overlay {
+            opacity: 1;
+        }
+        
+        .anime-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+            padding: 15px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        /* Video Player */
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background-color: #000;
+        }
+        
+        #videoPlayer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .player-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .video-container:hover .player-controls {
+            opacity: 1;
+        }
+        
+        /* Video Controls */
+        .video-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .control-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin: 0 5px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .control-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .progress-container {
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            right: 0;
+            padding: 0 15px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 0%;
+            transition: width 0.1s;
+        }
+        
+        .time-display {
+            color: white;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        /* Loading & Skeleton */
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--border-color);
+            border-top: 5px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .skeleton {
+            background-color: var(--border-color);
+            border-radius: 8px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+        
+        .btn-outline-primary {
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        /* Forms */
+        .form-control, .form-select {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background-color: var(--card-bg);
+            border-color: var(--accent-color);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 0.25rem rgba(138, 43, 226, 0.25);
+        }
+        
+        .form-label {
+            color: var(--text-secondary);
+        }
+        
+        /* Post Feed */
+        .post-card {
+            margin-bottom: 1.5rem;
+        }
+        
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+        }
+        
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        
+        .post-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 15px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        /* Watch Party */
+        .watch-party-card {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #4A00E0 100%);
+            color: white;
+        }
+        
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .back-to-top.show {
+            opacity: 1;
+        }
+        
+        /* Utility Classes */
+        .text-accent {
+            color: var(--accent-color) !important;
+        }
+        
+        .bg-accent {
+            background-color: var(--accent-color) !important;
+        }
+        
+        .border-accent {
+            border-color: var(--accent-color) !important;
+        }
+        
+        .page-transition {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Genre Icons */
+        .genre-icon {
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 5px;
+        }
+        
+        /* For desktop */
+        @media (min-width: 768px) {
+            .bottom-nav {
+                display: none;
+            }
+            
+            .main-container {
+                padding-bottom: 0;
+            }
+            
+            .desktop-nav {
+                display: flex !important;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .desktop-nav {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#" onclick="showPage('home')">
+                <i class="fas fa-play-circle me-2"></i>AnimeHolic
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <div class="desktop-nav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showPage('home')">
+                            <i class="fas fa-home me-1"></i>Beranda
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showPage('browse')">
+                            <i class="fas fa-compass me-1"></i>Jelajah
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showPage('social')">
+                            <i class="fas fa-users me-1"></i>Sosial
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showPage('groups')">
+                            <i class="fas fa-video me-1"></i>Grup Nonton
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showPage('profile')">
+                            <i class="fas fa-user me-1"></i>Profil
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="d-flex align-items-center">
+                <!-- Search Button -->
+                <button class="btn btn-outline-secondary me-2" onclick="toggleSearch()">
+                    <i class="fas fa-search"></i>
+                </button>
+                
+                <!-- Theme Toggle -->
+                <button class="btn btn-outline-secondary me-2" id="themeToggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </button>
+                
+                <!-- Login/Logout Button -->
+                <div id="authButtons">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Search Bar -->
+    <div class="container-fluid py-2 bg-secondary-dark d-none" id="searchBar">
+        <div class="input-group">
+            <input type="text" class="form-control" id="searchInput" placeholder="Cari anime berdasarkan judul, studio, atau pengisi suara...">
+            <button class="btn btn-primary" onclick="performSearch()">
+                <i class="fas fa-search"></i> Cari
+            </button>
+        </div>
+    </div>
+    
+    <!-- Main Content Container -->
+    <div class="main-container">
+        <!-- Pages will be loaded here -->
+        <div id="pageContent" class="page-transition">
+            <!-- Home page will be loaded here by default -->
+        </div>
+    </div>
+    
+    <!-- Bottom Navigation - Mobile -->
+    <div class="bottom-nav d-md-none">
+        <a class="bottom-nav-item active" href="#" onclick="showPage('home')">
+            <i class="fas fa-home bottom-nav-icon"></i>
+            <span>Beranda</span>
+        </a>
+        <a class="bottom-nav-item" href="#" onclick="showPage('browse')">
+            <i class="fas fa-compass bottom-nav-icon"></i>
+            <span>Jelajah</span>
+        </a>
+        <a class="bottom-nav-item" href="#" onclick="showPage('social')">
+            <i class="fas fa-users bottom-nav-icon"></i>
+            <span>Sosial</span>
+        </a>
+        <a class="bottom-nav-item" href="#" onclick="showPage('groups')">
+            <i class="fas fa-video bottom-nav-icon"></i>
+            <span>Grup</span>
+        </a>
+        <a class="bottom-nav-item" href="#" onclick="showPage('profile')">
+            <i class="fas fa-user bottom-nav-icon"></i>
+            <span>Profil</span>
+        </a>
+    </div>
+    
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Application JavaScript -->
+    <script>
+        // Global variables
+        let currentUser = null;
+        let currentPage = 'home';
+        let currentAnime = null;
+        let animeData = [];
+        let users = [];
+        let currentVideo = null;
+        let isPlaying = false;
+        
+        // ============================================
+        // DATABASE ANIME DENGAN FATE/STAY NIGHT
+        // ============================================
+        
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load users from localStorage
+            users = JSON.parse(localStorage.getItem('animeholic_users') || '[]');
+            
+            // Load anime data
+            loadAnimeData();
+            
+            // Check if user is logged in
+            checkLoginStatus();
+            
+            // Initialize theme
+            initTheme();
+            
+            // Show home page by default
+            showPage('home');
+            
+            // Setup back to top button
+            window.addEventListener('scroll', handleScroll);
+            
+            // Register service worker for PWA
+            if ('serviceWorker' in navigator) {
+                registerServiceWorker();
+            }
+            
+            // Create manifest for PWA
+            createManifest();
+        });
+        
+        // Load anime data dengan Fate/Stay Night
+        function loadAnimeData() {
+            // Sample anime data with Fate/Stay Night
+            animeData = [
+                {
+                    id: 1,
+                    title: "Fate/Stay Night: Unlimited Blade Works",
+                    description: "Shirou Emiya, seorang siswa SMA yang tanpa sengaja terlibat dalam Perang Cawan Suci, pertempuran mematikan antara tujuh penyihir dan para Heroic Spirit mereka untuk memperebutkan Cawan Suci yang dapat mengabulkan segala keinginan. Bersama dengan Rin Tohsaka dan pelayannya Archer, Shirou harus bertahan hidup dalam pertempuran epik ini.",
+                    image: "img/fate stay night.png",
+                    rating: 8.9,
+                    year: 2014,
+                    episodes: 25,
+                    genre: ["Action", "Fantasy", "Supernatural"],
+                    studio: "ufotable",
+                    status: "Completed",
+                    isFavorite: true,
+                    inWatchlist: true,
+                    progress: 12
+                },
+                {
+                    id: 2,
+                    title: "Fate/Zero",
+                    description: "Prequel dari Fate/Stay Night, mengisahkan Perang Cawan Suci keempat yang terjadi 10 tahun sebelumnya. Kiritsugu Emiya, dikenal sebagai 'Penyihir Pembunuh', berpartisipasi dalam perang bersama pelayannya Saber. Cerita ini mengeksplorasi tema yang lebih gelap dan dewasa tentang idealisme, pengorbanan, dan konsekuensi dari keinginan.",
+                    image: "img/fate zero.png",
+                    rating: 9.1,
+                    year: 2011,
+                    episodes: 25,
+                    genre: ["Action", "Dark Fantasy", "Drama"],
+                    studio: "ufotable",
+                    status: "Completed",
+                    isFavorite: true,
+                    inWatchlist: true,
+                    progress: 18
+                },
+                {
+                    id: 3,
+                    title: "Fate/Apocrypha",
+                    description: "Dalam dunia alternatif di mana Cawan Suci dicuri dari Perang Cawan Suci ketiga, Perang Cawan Suci yang luar biasa terjadi di Trifas. Dua faksi, Merah dan Hitam, masing-masing dengan tujuh Master dan Servant, bertempur untuk mendapatkan Cawan Suci dalam pertempuran 14 vs 14 yang epik.",
+                    image: "img/fate approcyra.png",
+                    rating: 7.8,
+                    year: 2017,
+                    episodes: 25,
+                    genre: ["Action", "Fantasy", "Adventure"],
+                    studio: "A-1 Pictures",
+                    status: "Completed",
+                    isFavorite: false,
+                    inWatchlist: true,
+                    progress: 5
+                },
+                {
+                    id: 4,
+                    title: "Attack on Titan",
+                    description: "Di dunia di mana umat manusia hidup di dalam kota yang dikelilingi oleh tembok besar untuk melindungi diri dari Titan, raksasa humanoid yang memakan manusia tanpa alasan yang jelas. Cerita mengikuti Eren Yeager, yang bersumpah akan membasmi semua Titan setelah mereka menghancurkan kota asalnya dan membunuh ibunya.",
+                    image: "img/my hero academia.png",
+                    rating: 9.0,
+                    year: 2013,
+                    episodes: 75,
+                    genre: ["Action", "Drama", "Fantasy"],
+                    studio: "Wit Studio, MAPPA",
+                    status: "Completed",
+                    isFavorite: false,
+                    inWatchlist: true,
+                    progress: 45
+                },
+                {
+                    id: 5,
+                    title: "Demon Slayer",
+                    description: "Tanjirou Kamado adalah anak yang baik hati dan cerdas yang hidup bersama keluarganya di pegunungan. Setelah keluarganya dibantai oleh iblis, satu-satunya yang selamat adalah adik perempuannya Nezuko yang telah berubah menjadi iblis. Tanjirou berjanji untuk menyembuhkan Nezuko dan membalas dendam.",
+                    image: "img/Kimetsu No Yaiba.png",
+                    rating: 8.7,
+                    year: 2019,
+                    episodes: 55,
+                    genre: ["Action", "Supernatural", "Adventure"],
+                    studio: "ufotable",
+                    status: "Ongoing",
+                    isFavorite: true,
+                    inWatchlist: true,
+                    progress: 32
+                },
+                {
+                    id: 6,
+                    title: "Jujutsu Kaisen",
+                    description: "Yuji Itadori adalah atlet sekolah menengah dengan kemampuan fisik yang luar biasa. Kehidupan normalnya berubah secara drastis setelah ia bertemu dengan jimat kutukan dan terlibat dalam dunia sihir kutukan. Untuk menyelamatkan teman-temannya dari kutukan, ia menelan jimat tersebut dan menjadi tuan rumah Ryomen Sukuna, kutukan terkuat.",
+                    image: "img/jujutsukaisen.png",
+                    rating: 8.6,
+                    year: 2020,
+                    episodes: 47,
+                    genre: ["Action", "Supernatural", "Horror"],
+                    studio: "MAPPA",
+                    status: "Ongoing",
+                    isFavorite: true,
+                    inWatchlist: true,
+                    progress: 28
+                }
+            ];
+            
+            // Save to localStorage
+            localStorage.setItem('animeholic_anime', JSON.stringify(animeData));
+        }
+        
+        // ============================================
+        // SISTEM VIDEO CUSTOM - TAMBAHKAN VIDEO ANDA DI SINI
+        // ============================================
+        
+        // Fungsi untuk memutar video berdasarkan judul anime
+        function playVideo(animeTitle, episode = 1) {
+            console.log(`Memulai video untuk: ${animeTitle}, Episode: ${episode}`);
+            
+            // Cari anime dalam database
+            const anime = animeData.find(a => a.title === animeTitle);
+            
+            if (!anime) {
+                alert(`Anime "${animeTitle}" tidak ditemukan dalam database!`);
+                return;
+            }
+            
+            // Ambil informasi video berdasarkan judul anime
+            const videoInfo = getVideoForAnime(animeTitle, episode);
+            
+            if (!videoInfo) {
+                alert(`Video untuk "${animeTitle} Episode ${episode}" tidak tersedia!`);
+                return;
+            }
+            
+            // Update progress anime
+            if (episode > anime.progress) {
+                anime.progress = episode;
+                localStorage.setItem('animeholic_anime', JSON.stringify(animeData));
+            }
+            
+            // Tampilkan halaman player dengan video yang sesuai
+            showPlayerPageWithVideo(anime, videoInfo, episode);
+        }
+        
+        // ============================================
+        // TEMPAT UNTUK MENAMBAHKAN VIDEO ANIME ANDA
+        // ============================================
+        
+        function getVideoForAnime(animeTitle, episode) {
+            // Database video untuk setiap anime
+            const animeVideos = {
+                // ============================================
+                // FATE/STAY NIGHT VIDEOS - GANTI DENGAN VIDEO ANDA
+                // ============================================
+                "Fate/Stay Night: Unlimited Blade Works": {
+                    1: {
+                        title: "Episode 1: Winter Days, Fateful Night",
+                        // GANTI URL DI BAWAH DENGAN VIDEO FATE/STAY NIGHT EPISODE 1 ANDA
+                        src: "video/fate stay night.mp4", // Contoh video
+                        poster: "img/fate stay night.png",
+                        duration: "24:00",
+                        description: "Shirou Emiya menyaksikan pertarungan misterius antara dua penyihir, menandai awal keterlibatannya dalam Perang Cawan Suci."
+                    },
+                    2: {
+                        title: "Episode 2: The Curtain Rises",
+                        // GANTI URL DI BAWAH DENGAN VIDEO FATE/STAY NIGHT EPISODE 2 ANDA
+                        src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4", // Contoh video
+                        poster: "https://images.unsplash.com/photo-1639322537502-9e1f6bf5c2e3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+                        duration: "24:00",
+                        description: "Shirou secara resmi menjadi Master dalam Perang Cawan Suci dan memanggil pelayannya, Saber."
+                    },
+                    3: {
+                        title: "Episode 3: The First Battle",
+                        src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", // Contoh video
+                        poster: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+                        duration: "24:00",
+                        description: "Pertempuran pertama Shirou dan Saber melawan Lancer di halaman sekolah."
+                    }
+                },
+                
+                // ============================================
+                // FATE/ZERO VIDEOS - GANTI DENGAN VIDEO ANDA
+                // ============================================
+                "Fate/Zero": {
+                    1: {
+                        title: "Episode 1: The Summoning of the Heroes",
+                        // GANTI URL DI BAWAH DENGAN VIDEO FATE/ZERO EPISODE 1 ANDA
+                        src: "video/Fate Zero.mp4", // Contoh video
+                        poster: "img/fate zero.png",
+                        duration: "24:00",
+                        description: "Perang Cawan Suci keempat dimulai dengan para Master memanggil Heroic Spirit mereka."
+                    },
+                    2: {
+                        title: "Episode 2: False Start",
+                        src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4", // Contoh video
+                        poster: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+                        duration: "24:00",
+                        description: "Pertemuan pertama antara para Servant di pelabuhan Fuyuki."
+                    }
+                },
+                
+                // ============================================
+                // FATE/APOCRYPHA VIDEOS - GANTI DENGAN VIDEO ANDA
+                // ============================================
+                "Fate/Apocrypha": {
+                    1: {
+                        title: "Episode 1: The Holy Grail War of Anomaly",
+                        // GANTI URL DI BAWAH DENGAN VIDEO FATE/APOCRYPHA EPISODE 1 ANDA
+                        src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4", // Contoh video
+                        poster: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+                        duration: "24:00",
+                        description: "Perang Cawan Suci yang tidak biasa dimulai dengan dua faksi, Merah dan Hitam."
+                    }
+                },
+                
+                // ============================================
+                // ANIME LAINNYA - TAMBAHKAN VIDEO UNTUK ANIME LAIN
+                // ============================================
+                "Attack on Titan": {
+                    1: {
+                        title: "Episode 1: To You, 2,000 Years in the Future",
+                        src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                        poster: "https://images.unsplash.com/photo-1639322537228-f710d846310a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+                        duration: "24:00",
+                        description: "Eren Yeager menyaksikan kehancuran kota asalnya oleh Titan Colossal."
+                    }
+                },
+                
+                "Demon Slayer": {
+                    1: {
+                        title: "Episode 1: Cruelty",
+                        src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                        poster: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+                        duration: "24:00",
+                        description: "Tanjirou kembali ke rumah untuk menemukan keluarganya dibantai oleh iblis."
+                    }
+                },
+                
+                "Jujutsu Kaisen": {
+                    1: {
+                        title: "Episode 1: Ryomen Sukuna",
+                        src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                        poster: "https://images.unsplash.com/photo-1639322537502-9e1f6bf5c2e3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+                        duration: "24:00",
+                        description: "Yuji Itadori menemukan jimat kutukan dan menjadi tuan rumah Ryomen Sukuna."
+                    }
+                }
+            };
+            
+            // Jika episode spesifik tidak ditemukan, gunakan episode 1 sebagai default
+            const episodeKey = episode || 1;
+            
+            // Cek apakah anime ada dalam database video
+            if (animeVideos[animeTitle] && animeVideos[animeTitle][episodeKey]) {
+                return animeVideos[animeTitle][episodeKey];
+            }
+            
+            // Fallback ke episode 1 jika episode tertentu tidak ditemukan
+            if (animeVideos[animeTitle] && animeVideos[animeTitle][1]) {
+                console.log(`Episode ${episode} tidak ditemukan, menggunakan episode 1 sebagai fallback`);
+                return animeVideos[animeTitle][1];
+            }
+            
+            return null;
+        }
+        
+        // ============================================
+        // CARA MENAMBAHKAN VIDEO ANIME ANDA:
+        // ============================================
+        /*
+        UNTUK MENAMBAHKAN VIDEO ANIME ANDA:
+        
+        1. Ganti URL 'src' dengan path file video Anda:
+           - Jika video ada di folder lokal: "videos/fate_episode1.mp4"
+           - Jika video ada di server: "https://serveranda.com/videos/fate_ep1.mp4"
+        
+        2. Format untuk menambahkan video baru:
+        
+        "Judul Anime": {
+            episode_number: {
+                title: "Judul Episode",
+                src: "URL_VIDEO_ANDA_DISINI",  // <-- GANTI INI
+                poster: "URL_GAMBAR_THUMBNAIL",
+                duration: "24:00",
+                description: "Deskripsi episode"
+            },
+            episode_number_lain: {
+                // ... data episode lain
+            }
+        }
+        
+        3. Contoh menambahkan episode baru untuk Fate/Stay Night:
+        
+        "Fate/Stay Night: Unlimited Blade Works": {
+            4: {
+                title: "Episode 4: Dance of the Swords",
+                src: "videos/fate_ep4.mp4",  // Video lokal Anda
+                poster: "images/fate_ep4.jpg",
+                duration: "24:00",
+                description: "Shirou mulai belajar Reinforcement magecraft dari Rin."
+            }
+        }
+        */
+        
+        // ============================================
+        // PLAYER PAGE WITH CUSTOM VIDEO
+        // ============================================
+        
+        function showPlayerPageWithVideo(anime, videoInfo, episode) {
+            const pageContent = document.getElementById('pageContent');
+            
+            let content = `
+                <div class="container-fluid p-0">
+                    <!-- Video Player -->
+                    <div class="video-container" id="videoContainer">
+                        <video id="videoPlayer" controls playsinline poster="${videoInfo.poster}">
+                            <source src="${videoInfo.src}" type="video/mp4">
+                            Browser Anda tidak mendukung pemutaran video.
+                            <p>Jika video tidak muncul, pastikan URL video benar dan dapat diakses.</p>
+                        </video>
+                        
+                        <!-- Custom Controls -->
+                        <div class="progress-container">
+                            <div class="progress-bar" onclick="seekVideo(event)">
+                                <div class="progress" id="videoProgress"></div>
+                            </div>
+                            <div class="time-display">
+                                <span id="currentTime">0:00</span>
+                                <span id="duration">${videoInfo.duration}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="video-controls">
+                            <div>
+                                <button class="control-btn" onclick="togglePlayPause()">
+                                    <i class="fas fa-play" id="playPauseIcon"></i>
+                                </button>
+                                <button class="control-btn" onclick="skipTime(-10)">
+                                    <i class="fas fa-backward"></i> 10s
+                                </button>
+                                <button class="control-btn" onclick="skipTime(10)">
+                                    10s <i class="fas fa-forward"></i>
+                                </button>
+                                <span class="text-white ms-3" id="volumeText">Volume: 100%</span>
+                            </div>
+                            <div>
+                                <button class="control-btn" onclick="toggleMute()">
+                                    <i class="fas fa-volume-up" id="volumeIcon"></i>
+                                </button>
+                                <button class="control-btn" onclick="toggleFullscreen()">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                                <button class="control-btn" onclick="showPage('anime-detail', ${anime.id})">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Player Controls Bar -->
+                    <div class="bg-secondary-dark p-3">
+                        <div class="container">
+                            ${showBackButton('anime-detail')}
+                            <h4 class="text-white">${videoInfo.title}</h4>
+                            <p class="text-white mb-0">${videoInfo.description}</p>
+                            
+                            <!-- Video Information -->
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <p class="text-white mb-1"><strong>Anime:</strong> ${anime.title}</p>
+                                    <p class="text-white mb-1"><strong>Episode:</strong> ${episode}</p>
+                                    <p class="text-white"><strong>Durasi:</strong> ${videoInfo.duration}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <!-- Quality & Subtitle Controls -->
+                                    <div class="mb-2">
+                                        <label class="form-label text-white mb-1">Kualitas Video</label>
+                                        <select class="form-select form-select-sm" id="qualitySelect">
+                                            <option>1080p HD</option>
+                                            <option>720p HD</option>
+                                            <option selected>480p</option>
+                                            <option>360p</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label text-white mb-1">Kecepatan Pemutaran</label>
+                                        <select class="form-select form-select-sm" id="speedSelect" onchange="changePlaybackSpeed(this.value)">
+                                            <option value="1" selected>1.0x Normal</option>
+                                            <option value="1.25">1.25x</option>
+                                            <option value="1.5">1.5x</option>
+                                            <option value="2">2.0x</option>
+                                            <option value="0.75">0.75x</option>
+                                            <option value="0.5">0.5x</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Social Sharing -->
+                            <div class="mt-3">
+                                <h6 class="text-white mb-2">Bagikan:</h6>
+                                <div class="d-flex">
+                                    <button class="btn btn-outline-light btn-sm me-2" onclick="shareMoment('${anime.title}', ${episode})">
+                                        <i class="fas fa-share-alt me-1"></i> Bagikan Momen
+                                    </button>
+                                    <button class="btn btn-outline-light btn-sm me-2" onclick="inviteToWatchParty('${anime.title}', ${episode})">
+                                        <i class="fas fa-users me-1"></i> Undang ke Grup Nonton
+                                    </button>
+                                    <button class="btn btn-outline-light btn-sm" onclick="downloadEpisode('${anime.title}', ${episode})">
+                                        <i class="fas fa-download me-1"></i> Unduh Episode
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Next Episode -->
+                    <div class="container py-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5>Episode Selanjutnya</h5>
+                            ${episode < anime.episodes ? 
+                                `<button class="btn btn-outline-primary" onclick="playVideo('${anime.title}', ${episode + 1})">
+                                    <i class="fas fa-forward me-1"></i> Episode ${episode + 1}
+                                </button>` :
+                                `<span class="text-secondary">Ini adalah episode terakhir musim ini</span>`
+                            }
+                        </div>
+                        
+                        <!-- Episode List -->
+                        <h5 class="mb-3">Daftar Episode</h5>
+                        <div class="row" id="episodeListContainer">
+                            ${generateEpisodeList(anime, episode)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            pageContent.innerHTML = content;
+            
+            // Initialize video player
+            initializeVideoPlayer();
+        }
+        
+        function generateEpisodeList(anime, currentEpisode) {
+            let episodesHTML = '';
+            const maxEpisodesToShow = Math.min(10, anime.episodes);
+            
+            for (let i = 1; i <= maxEpisodesToShow; i++) {
+                const isCurrent = i === currentEpisode;
+                const isWatched = i <= anime.progress;
+                const videoInfo = getVideoForAnime(anime.title, i);
+                const episodeTitle = videoInfo ? videoInfo.title : `Episode ${i}`;
+                
+                episodesHTML += `
+                    <div class="col-md-6 mb-2">
+                        <div class="card ${isCurrent ? 'border-accent' : ''} ${isWatched ? 'border-success' : ''}">
+                            <div class="card-body py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">${episodeTitle} ${isCurrent ? '<span class="badge bg-accent ms-2">Sedang Diputar</span>' : ''}</h6>
+                                        <small class="text-secondary">Durasi: 24 menit</small>
+                                    </div>
+                                    <div>
+                                        ${isWatched && !isCurrent ? 
+                                            `<span class="badge bg-success me-2"><i class="fas fa-check"></i> Ditonton</span>` : 
+                                            ''
+                                        }
+                                        <button class="btn btn-sm ${isCurrent ? 'btn-primary' : 'btn-outline-primary'}" 
+                                                onclick="playVideo('${anime.title}', ${i})">
+                                            <i class="fas fa-play"></i> ${isCurrent ? 'Lanjutkan' : 'Tonton'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (anime.episodes > 10) {
+                episodesHTML += `
+                    <div class="col-12 text-center mt-2">
+                        <button class="btn btn-outline-secondary" onclick="showAllEpisodes('${anime.title}')">
+                            Lihat Semua ${anime.episodes} Episode
+                        </button>
+                    </div>
+                `;
+            }
+            
+            return episodesHTML;
+        }
+        
+        // ============================================
+        // VIDEO PLAYER FUNCTIONS
+        // ============================================
+        
+        function initializeVideoPlayer() {
+            const video = document.getElementById('videoPlayer');
+            const progress = document.getElementById('videoProgress');
+            const currentTimeElement = document.getElementById('currentTime');
+            const durationElement = document.getElementById('duration');
+            const playPauseIcon = document.getElementById('playPauseIcon');
+            
+            if (!video) return;
+            
+            currentVideo = video;
+            
+            // Update time display
+            video.addEventListener('loadedmetadata', function() {
+                durationElement.textContent = formatTime(video.duration);
+            });
+            
+            video.addEventListener('timeupdate', function() {
+                const percent = (video.currentTime / video.duration) * 100;
+                progress.style.width = percent + '%';
+                currentTimeElement.textContent = formatTime(video.currentTime);
+                
+                // Update play/pause icon
+                if (video.paused) {
+                    playPauseIcon.className = 'fas fa-play';
+                    isPlaying = false;
+                } else {
+                    playPauseIcon.className = 'fas fa-pause';
+                    isPlaying = true;
+                }
+            });
+            
+            // Video error handling
+            video.addEventListener('error', function(e) {
+                console.error('Video error:', video.error);
+                alert('Error memuat video. Pastikan URL video benar dan dapat diakses.');
+            });
+            
+            // Play video automatically
+            setTimeout(() => {
+                video.play().catch(e => {
+                    console.log("Autoplay prevented:", e);
+                    // Show play button if autoplay is blocked
+                    playPauseIcon.className = 'fas fa-play';
+                    isPlaying = false;
+                });
+                isPlaying = true;
+                playPauseIcon.className = 'fas fa-pause';
+            }, 1000);
+            
+            // Gesture controls for mobile
+            setupGestureControls();
+        }
+        
+        function togglePlayPause() {
+            if (!currentVideo) return;
+            
+            if (currentVideo.paused) {
+                currentVideo.play();
+                isPlaying = true;
+                document.getElementById('playPauseIcon').className = 'fas fa-pause';
+            } else {
+                currentVideo.pause();
+                isPlaying = false;
+                document.getElementById('playPauseIcon').className = 'fas fa-play';
+            }
+        }
+        
+        function skipTime(seconds) {
+            if (!currentVideo) return;
+            
+            currentVideo.currentTime += seconds;
+            
+            // Show skip notification
+            const notification = document.createElement('div');
+            notification.className = 'position-fixed bottom-50 start-50 translate-middle p-2 bg-dark rounded text-white';
+            notification.textContent = seconds > 0 ? `+${seconds} detik` : `${seconds} detik`;
+            notification.style.zIndex = '10000';
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 1000);
+        }
+        
+        function seekVideo(event) {
+            if (!currentVideo) return;
+            
+            const progressBar = event.currentTarget;
+            const clickPosition = event.offsetX;
+            const barWidth = progressBar.clientWidth;
+            const seekTime = (clickPosition / barWidth) * currentVideo.duration;
+            
+            currentVideo.currentTime = seekTime;
+        }
+        
+        function toggleMute() {
+            if (!currentVideo) return;
+            
+            currentVideo.muted = !currentVideo.muted;
+            const volumeIcon = document.getElementById('volumeIcon');
+            const volumeText = document.getElementById('volumeText');
+            
+            if (currentVideo.muted) {
+                volumeIcon.className = 'fas fa-volume-mute';
+                volumeText.textContent = 'Volume: Mute';
+            } else {
+                volumeIcon.className = 'fas fa-volume-up';
+                volumeText.textContent = `Volume: ${Math.round(currentVideo.volume * 100)}%`;
+            }
+        }
+        
+        function toggleFullscreen() {
+            const videoContainer = document.getElementById('videoContainer');
+            
+            if (!document.fullscreenElement) {
+                if (videoContainer.requestFullscreen) {
+                    videoContainer.requestFullscreen();
+                } else if (videoContainer.webkitRequestFullscreen) {
+                    videoContainer.webkitRequestFullscreen();
+                } else if (videoContainer.msRequestFullscreen) {
+                    videoContainer.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+        
+        function changePlaybackSpeed(speed) {
+            if (!currentVideo) return;
+            
+            currentVideo.playbackRate = parseFloat(speed);
+            
+            // Show speed notification
+            const notification = document.createElement('div');
+            notification.className = 'position-fixed bottom-50 start-50 translate-middle p-2 bg-dark rounded text-white';
+            notification.textContent = `Kecepatan: ${speed}x`;
+            notification.style.zIndex = '10000';
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 1000);
+        }
+        
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        function setupGestureControls() {
+            const videoContainer = document.getElementById('videoContainer');
+            if (!videoContainer) return;
+            
+            let startX, startY;
+            
+            videoContainer.addEventListener('touchstart', function(e) {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            });
+            
+            videoContainer.addEventListener('touchmove', function(e) {
+                if (!currentVideo || !startX || !startY) return;
+                
+                const currentX = e.touches[0].clientX;
+                const currentY = e.touches[0].clientY;
+                const diffX = currentX - startX;
+                const diffY = currentY - startY;
+                
+                // Horizontal swipe for seeking
+                if (Math.abs(diffX) > 50) {
+                    const seekAmount = diffX > 0 ? 10 : -10;
+                    skipTime(seekAmount);
+                    startX = currentX;
+                }
+            });
+        }
+        
+        // ============================================
+        // OTHER FUNCTIONS (Theme, Navigation, etc.)
+        // ============================================
+        
+        function createManifest() {
+            const manifest = {
+                "name": "AnimeHolic",
+                "short_name": "AnimeHolic",
+                "description": "Platform social streaming terpadu bagi penggemar anime",
+                "start_url": "/",
+                "display": "standalone",
+                "background_color": "#0D1117",
+                "theme_color": "#8A2BE2",
+                "icons": [
+                    {
+                        "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%238A2BE2%22>🎌</text></svg>",
+                        "sizes": "any",
+                        "type": "image/svg+xml"
+                    }
+                ]
+            };
+            
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(manifest));
+            document.head.appendChild(link);
+        }
+        
+        function initTheme() {
+            const savedTheme = localStorage.getItem('animeholic_theme') || 'dark';
+            document.body.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        }
+        
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('animeholic_theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+        
+        function updateThemeIcon(theme) {
+            const icon = document.querySelector('#themeToggle i');
+            icon.className = theme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+        }
+        
+        function checkLoginStatus() {
+            const loggedInUser = localStorage.getItem('animeholic_current_user');
+            
+            if (loggedInUser) {
+                currentUser = JSON.parse(loggedInUser);
+                updateAuthButtons(true);
+            } else {
+                updateAuthButtons(false);
+                
+                if (currentPage !== 'login' && currentPage !== 'register' && 
+                    currentPage !== 'home' && currentPage !== 'browse') {
+                    showPage('login');
+                }
+            }
+        }
+        
+        function updateAuthButtons(isLoggedIn) {
+            const authButtons = document.getElementById('authButtons');
+            
+            if (isLoggedIn) {
+                authButtons.innerHTML = `
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>${currentUser.name.split(' ')[0]}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" onclick="showPage('profile')"><i class="fas fa-user me-2"></i>Profil</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showPage('watchlist')"><i class="fas fa-bookmark me-2"></i>Watchlist</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showPage('history')"><i class="fas fa-history me-2"></i>Riwayat</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                `;
+            } else {
+                authButtons.innerHTML = `
+                    <button class="btn btn-outline-primary me-2" onclick="showPage('login')">
+                        <i class="fas fa-sign-in-alt me-1"></i>Login
+                    </button>
+                    <button class="btn btn-primary" onclick="showPage('register')">
+                        <i class="fas fa-user-plus me-1"></i>Daftar
+                    </button>
+                `;
+            }
+        }
+        
+        function showPage(page, animeId = null, episode = 1) {
+            currentPage = page;
+            
+            // Update active nav items
+            updateActiveNav(page);
+            
+            // Store previous page for back button functionality
+            if (page !== 'player' && page !== 'login' && page !== 'register') {
+                sessionStorage.setItem('prevPage', page);
+            }
+            
+            // Clear page content
+            const pageContent = document.getElementById('pageContent');
+            pageContent.innerHTML = '';
+            pageContent.className = 'page-transition';
+            
+            // Show page based on parameter
+            switch(page) {
+                case 'home':
+                    showHomePage();
+                    break;
+                case 'browse':
+                    showBrowsePage();
+                    break;
+                case 'social':
+                    showSocialPage();
+                    break;
+                case 'groups':
+                    showGroupsPage();
+                    break;
+                case 'profile':
+                    if (currentUser) {
+                        showProfilePage();
+                    } else {
+                        showLoginPage();
+                    }
+                    break;
+                case 'login':
+                    showLoginPage();
+                    break;
+                case 'register':
+                    showRegisterPage();
+                    break;
+                case 'anime-detail':
+                    if (animeId) {
+                        showAnimeDetailPage(animeId);
+                    }
+                    break;
+                case 'player':
+                    if (animeId) {
+                        // For backward compatibility
+                        const anime = animeData.find(a => a.id == animeId);
+                        if (anime) {
+                            playVideo(anime.title, episode);
+                        }
+                    }
+                    break;
+                default:
+                    showHomePage();
+            }
+            
+            // Hide search bar if it's open
+            document.getElementById('searchBar').classList.add('d-none');
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        function updateActiveNav(page) {
+            // Update desktop nav
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Update bottom nav
+            document.querySelectorAll('.bottom-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Set active based on page
+            let activeNavItem = '';
+            switch(page) {
+                case 'home':
+                    activeNavItem = '.nav-link[href="#"], .bottom-nav-item[href="#"]';
+                    break;
+                case 'browse':
+                    activeNavItem = '.nav-link[href="#"][onclick*="browse"], .bottom-nav-item[href="#"][onclick*="browse"]';
+                    break;
+                case 'social':
+                    activeNavItem = '.nav-link[href="#"][onclick*="social"], .bottom-nav-item[href="#"][onclick*="social"]';
+                    break;
+                case 'groups':
+                    activeNavItem = '.nav-link[href="#"][onclick*="groups"], .bottom-nav-item[href="#"][onclick*="groups"]';
+                    break;
+                case 'profile':
+                    activeNavItem = '.nav-link[href="#"][onclick*="profile"], .bottom-nav-item[href="#"][onclick*="profile"]';
+                    break;
+            }
+            
+            if (activeNavItem) {
+                document.querySelectorAll(activeNavItem).forEach(item => {
+                    item.classList.add('active');
+                });
+            }
+        }
+        
+        function showBackButton(targetPage = null) {
+            const prevPage = targetPage || sessionStorage.getItem('prevPage') || 'home';
+            return `
+                <button class="btn btn-outline-secondary mb-3" onclick="showPage('${prevPage}')">
+                    <i class="fas fa-arrow-left me-1"></i> Kembali
+                </button>
+            `;
+        }
+        
+        function showHomePage() {
+            const pageContent = document.getElementById('pageContent');
+            
+            let content = `
+                <div class="container py-4">
+                    <!-- Hero Section - Fate/Stay Night -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body p-0">
+                                    <div class="position-relative">
+                                        <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+                                             class="img-fluid w-100" style="height: 300px; object-fit: cover;" alt="Fate/Stay Night">
+                                        <div class="position-absolute bottom-0 start-0 p-4" style="background: linear-gradient(transparent, rgba(0,0,0,0.8)); width: 100%;">
+                                            <h2 class="text-white">Fate/Stay Night: Unlimited Blade Works</h2>
+                                            <p class="text-white mb-2">Pertempuran epik dalam Perang Cawan Suci</p>
+                                            <button class="btn btn-primary" onclick="playVideo('Fate/Stay Night: Unlimited Blade Works')">
+                                                <i class="fas fa-play me-1"></i> Tonton Episode 1
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Continue Watching -->
+                    <h4 class="mb-3">Lanjutkan Menonton</h4>
+                    <div class="row mb-4" id="continueWatching">
+                        ${generateContinueWatching()}
+                    </div>
+                    
+                    <!-- Fate Series Collection -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4>Koleksi Fate Series</h4>
+                        <a href="#" class="text-accent" onclick="showFateCollection()">Lihat Semua</a>
+                    </div>
+                    <div class="row mb-4" id="fateCollection">
+                        ${generateFateCollection()}
+                    </div>
+                    
+                    <!-- Trending Now -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4>Trending Sekarang</h4>
+                        <a href="#" class="text-accent" onclick="showPage('browse')">Lihat Semua</a>
+                    </div>
+                    <div class="row mb-4" id="trendingAnime">
+                        ${generateTrendingAnime()}
+                    </div>
+                </div>
+            `;
+            
+            pageContent.innerHTML = content;
+        }
+        
+        function generateContinueWatching() {
+            const watchingAnime = animeData.filter(anime => anime.progress > 0 && anime.progress < anime.episodes);
+            
+            if (watchingAnime.length === 0) {
+                return `
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body text-center py-5">
+                                <i class="fas fa-film fa-3x text-secondary mb-3"></i>
+                                <h5 class="text-secondary">Belum ada tontonan yang dilanjutkan</h5>
+                                <p class="text-secondary mb-0">Mulai menonton anime dari halaman Jelajah</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            let content = '';
+            watchingAnime.forEach(anime => {
+                const progressPercent = (anime.progress / anime.episodes) * 100;
+                content += `
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="anime-card card h-100" onclick="playVideo('${anime.title}')">
+                            <img src="${anime.image}" class="card-img-top" alt="${anime.title}">
+                            <div class="card-body">
+                                <h6 class="card-title">${anime.title}</h6>
+                                <p class="card-text text-secondary small">Episode ${anime.progress} dari ${anime.episodes}</p>
+                                <div class="progress" style="height: 5px;">
+                                    <div class="progress-bar bg-accent" role="progressbar" style="width: ${progressPercent}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            return content;
+        }
+        
+        function generateFateCollection() {
+            const fateAnime = animeData.filter(anime => anime.title.includes("Fate"));
+            
+            let content = '';
+            fateAnime.forEach(anime => {
+                content += `
+                    <div class="col-md-4 col-sm-6 mb-3">
+                        <div class="anime-card card h-100" onclick="showPage('anime-detail', ${anime.id})">
+                            <img src="${anime.image}" class="card-img-top" alt="${anime.title}">
+                            <div class="card-body">
+                                <h6 class="card-title">${anime.title}</h6>
+                                <p class="card-text text-secondary small">${anime.description.substring(0, 80)}...</p>
+                                <button class="btn btn-sm btn-primary w-100" onclick="event.stopPropagation(); playVideo('${anime.title}')">
+                                    <i class="fas fa-play me-1"></i> Tonton Episode 1
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            return content;
+        }
+        
+        function generateTrendingAnime() {
+            const trendingAnime = animeData.slice(0, 4);
+            
+            let content = '';
+            trendingAnime.forEach(anime => {
+                content += `
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="anime-card card h-100" onclick="showPage('anime-detail', ${anime.id})">
+                            <img src="${anime.image}" class="card-img-top" alt="${anime.title}">
+                            <div class="anime-overlay">
+                                <h6 class="text-white">${anime.title}</h6>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-star me-1"></i>${anime.rating}
+                                    </span>
+                                    <span class="badge bg-secondary">${anime.year}</span>
+                                </div>
+                                <button class="btn btn-sm btn-primary mt-2 w-100" onclick="event.stopPropagation(); playVideo('${anime.title}')">
+                                    <i class="fas fa-play me-1"></i> Tonton
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            return content;
+        }
+        
+        function showBrowsePage() {
+            const pageContent = document.getElementById('pageContent');
+            
+            let content = `
+                <div class="container py-4">
+                    ${showBackButton('home')}
+                    <h2 class="mb-4">Jelajahi Katalog Anime</h2>
+                    
+                    <!-- Quick Genre Filters -->
+                    <div class="mb-4">
+                        <h5 class="mb-3">Genre Populer</h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-outline-primary" onclick="filterByGenre('Action')">Action</button>
+                            <button class="btn btn-outline-primary" onclick="filterByGenre('Fantasy')">Fantasy</button>
+                            <button class="btn btn-outline-primary" onclick="filterByGenre('Drama')">Drama</button>
+                            <button class="btn btn-outline-primary" onclick="filterByGenre('Supernatural')">Supernatural</button>
+                            <button class="btn btn-outline-primary" onclick="filterByGenre('Adventure')">Adventure</button>
+                            <button class="btn btn-outline-primary" onclick="showAllAnime()">Semua Anime</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Anime Grid -->
+                    <div class="row" id="animeGrid">
+                        ${generateAnimeGrid()}
+                    </div>
+                </div>
+            `;
+            
+            pageContent.innerHTML = content;
+        }
+        
+        function generateAnimeGrid() {
+            let content = '';
+            animeData.forEach(anime => {
+                const genres = anime.genre.map(genre => `
+                    <span class="badge bg-secondary me-1 mb-1">${genre}</span>
+                `).join('');
+                
+                content += `
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="anime-card card h-100">
+                            <img src="${anime.image}" class="card-img-top" alt="${anime.title}" 
+                                 onclick="showPage('anime-detail', ${anime.id})">
+                            <div class="card-body">
+                                <h5 class="card-title">${anime.title}</h5>
+                                <p class="card-text text-secondary small">${anime.description.substring(0, 100)}...</p>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-star me-1"></i>${anime.rating}
+                                    </span>
+                                    <span class="badge bg-secondary">${anime.year}</span>
+                                </div>
+                                <div class="mb-2">
+                                    ${genres}
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <button class="btn btn-sm ${anime.inWatchlist ? 'btn-primary' : 'btn-outline-primary'}" 
+                                            onclick="event.stopPropagation(); toggleWatchlist(${anime.id})">
+                                        <i class="fas ${anime.inWatchlist ? 'fa-check' : 'fa-plus'} me-1"></i> ${anime.inWatchlist ? 'Watchlist' : 'Tambah'}
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary" 
+                                            onclick="event.stopPropagation(); playVideo('${anime.title}')">
+                                        <i class="fas fa-play me-1"></i> Tonton
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            return content;
+        }
+        
+        function showAnimeDetailPage(animeId) {
+            const anime = animeData.find(a => a.id == animeId);
+            if (!anime) {
+                showPage('browse');
+                return;
+            }
+            
+            currentAnime = anime;
+            
+            const pageContent = document.getElementById('pageContent');
+            
+            const genres = anime.genre.map(genre => `
+                <span class="badge bg-secondary me-1 mb-1">${genre}</span>
+            `).join('');
+            
+            let content = `
+                <div class="container py-4">
+                    ${showBackButton('browse')}
+                    
+                    <!-- Anime Header -->
+                    <div class="row mb-4">
+                        <div class="col-md-4 mb-3">
+                            <img src="${anime.image}" class="img-fluid rounded" alt="${anime.title}">
+                        </div>
+                        <div class="col-md-8">
+                            <h2 class="mb-2">${anime.title}</h2>
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="badge bg-warning text-dark me-2">
+                                    <i class="fas fa-star me-1"></i>${anime.rating}
+                                </span>
+                                <span class="badge bg-secondary me-2">${anime.year}</span>
+                                <span class="badge bg-secondary me-2">${anime.episodes} Episode</span>
+                                <span class="badge ${anime.status === 'Ongoing' ? 'bg-success' : 'bg-info'}">${anime.status}</span>
+                            </div>
+                            <p class="mb-3">${anime.description}</p>
+                            <div class="mb-3">
+                                <strong>Studio:</strong> ${anime.studio}
+                            </div>
+                            <div class="mb-4">
+                                <strong>Genre:</strong> ${genres}
+                            </div>
+                            <div class="d-flex flex-wrap">
+                                <button class="btn btn-primary me-2 mb-2" onclick="playVideo('${anime.title}', 1)">
+                                    <i class="fas fa-play me-1"></i> Tonton Episode 1
+                                </button>
+                                ${anime.progress > 0 ? `
+                                    <button class="btn btn-success me-2 mb-2" onclick="playVideo('${anime.title}', ${anime.progress})">
+                                        <i class="fas fa-play-circle me-1"></i> Lanjutkan Episode ${anime.progress}
+                                    </button>
+                                ` : ''}
+                                <button class="btn ${anime.isFavorite ? 'btn-danger' : 'btn-outline-danger'} me-2 mb-2" onclick="toggleFavorite(${anime.id})">
+                                    <i class="fas ${anime.isFavorite ? 'fa-heart' : 'fa-heart'} me-1"></i> ${anime.isFavorite ? 'Favorit' : 'Favoritkan'}
+                                </button>
+                                <button class="btn ${anime.inWatchlist ? 'btn-success' : 'btn-outline-success'} mb-2" onclick="toggleWatchlist(${anime.id})">
+                                    <i class="fas ${anime.inWatchlist ? 'fa-check' : 'fa-plus'} me-1"></i> ${anime.inWatchlist ? 'Dalam Watchlist' : 'Watchlist'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Episode List -->
+                    <h4 class="mb-3">Daftar Episode</h4>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row" id="episodeList">
+                                ${generateEpisodeListForDetail(anime)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            pageContent.innerHTML = content;
+        }
+        
+        function generateEpisodeListForDetail(anime) {
+            let episodesHTML = '';
+            const maxEpisodesToShow = Math.min(10, anime.episodes);
+            
+            for (let i = 1; i <= maxEpisodesToShow; i++) {
+                const isWatched = i <= anime.progress;
+                const videoInfo = getVideoForAnime(anime.title, i);
+                const episodeTitle = videoInfo ? videoInfo.title : `Episode ${i}`;
+                
+                episodesHTML += `
+                    <div class="col-md-6 mb-2">
+                        <div class="card ${isWatched ? 'border-success' : ''}">
+                            <div class="card-body py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">${episodeTitle}</h6>
+                                        <small class="text-secondary">Durasi: 24 menit</small>
+                                    </div>
+                                    <div>
+                                        ${isWatched ? 
+                                            `<span class="badge bg-success me-2"><i class="fas fa-check"></i> Ditonton</span>` : 
+                                            ''
+                                        }
+                                        <button class="btn btn-sm btn-outline-primary" onclick="playVideo('${anime.title}', ${i})">
+                                            <i class="fas fa-play"></i> Tonton
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (anime.episodes > 10) {
+                episodesHTML += `
+                    <div class="col-12 text-center mt-2">
+                        <button class="btn btn-outline-secondary" onclick="showAllEpisodes('${anime.title}')">
+                            Lihat Semua ${anime.episodes} Episode
+                        </button>
+                    </div>
+                `;
+            }
+            
+            return episodesHTML;
+        }
+        
+        // Helper functions
+        function filterByGenre(genre) {
+            const filteredAnime = animeData.filter(anime => anime.genre.includes(genre));
+            showFilteredResults(filteredAnime, `Genre: ${genre}`);
+        }
+        
+        function showAllAnime() {
+            showFilteredResults(animeData, "Semua Anime");
+        }
+        
+        function showFilteredResults(animeList, title) {
+            showPage('browse');
+            
+            setTimeout(() => {
+                const animeGrid = document.getElementById('animeGrid');
+                let content = '';
+                
+                if (animeList.length === 0) {
+                    content = `
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body text-center py-5">
+                                    <i class="fas fa-search fa-3x text-secondary mb-3"></i>
+                                    <h5 class="text-secondary">Tidak ada anime yang ditemukan</h5>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    animeList.forEach(anime => {
+                        const genres = anime.genre.map(genre => `
+                            <span class="badge bg-secondary me-1 mb-1">${genre}</span>
+                        `).join('');
+                        
+                        content += `
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="anime-card card h-100">
+                                    <img src="${anime.image}" class="card-img-top" alt="${anime.title}" 
+                                         onclick="showPage('anime-detail', ${anime.id})">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${anime.title}</h5>
+                                        <p class="card-text text-secondary small">${anime.description.substring(0, 100)}...</p>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-star me-1"></i>${anime.rating}
+                                            </span>
+                                            <span class="badge bg-secondary">${anime.year}</span>
+                                        </div>
+                                        <div class="mb-2">
+                                            ${genres}
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <button class="btn btn-sm ${anime.inWatchlist ? 'btn-primary' : 'btn-outline-primary'}" 
+                                                    onclick="event.stopPropagation(); toggleWatchlist(${anime.id})">
+                                                <i class="fas ${anime.inWatchlist ? 'fa-check' : 'fa-plus'} me-1"></i> ${anime.inWatchlist ? 'Watchlist' : 'Tambah'}
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-primary" 
+                                                    onclick="event.stopPropagation(); playVideo('${anime.title}')">
+                                                <i class="fas fa-play me-1"></i> Tonton
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                animeGrid.innerHTML = content;
+                
+                // Update title
+                const pageTitle = document.querySelector('.container.py-4 h2');
+                if (pageTitle) {
+                    pageTitle.textContent = title;
+                }
+            }, 100);
+        }
+        
+        function toggleSearch() {
+            const searchBar = document.getElementById('searchBar');
+            searchBar.classList.toggle('d-none');
+            
+            if (!searchBar.classList.contains('d-none')) {
+                document.getElementById('searchInput').focus();
+            }
+        }
+        
+        function performSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (!query) {
+                alert('Masukkan kata kunci pencarian!');
+                return;
+            }
+            
+            const results = animeData.filter(anime => 
+                anime.title.toLowerCase().includes(query) ||
+                anime.description.toLowerCase().includes(query) ||
+                anime.studio.toLowerCase().includes(query) ||
+                anime.genre.some(genre => genre.toLowerCase().includes(query))
+            );
+            
+            if (results.length === 0) {
+                alert('Tidak ada hasil ditemukan untuk: ' + query);
+                return;
+            }
+            
+            showFilteredResults(results, `Hasil Pencarian: "${query}"`);
+        }
+        
+        function showAllEpisodes(animeTitle) {
+            const anime = animeData.find(a => a.title === animeTitle);
+            if (!anime) return;
+            
+            let episodesHTML = '';
+            for (let i = 1; i <= anime.episodes; i++) {
+                const isWatched = i <= anime.progress;
+                const videoInfo = getVideoForAnime(animeTitle, i);
+                const episodeTitle = videoInfo ? videoInfo.title : `Episode ${i}`;
+                
+                episodesHTML += `
+                    <div class="col-md-6 mb-2">
+                        <div class="card ${isWatched ? 'border-success' : ''}">
+                            <div class="card-body py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">${episodeTitle}</h6>
+                                        <small class="text-secondary">Durasi: 24 menit</small>
+                                    </div>
+                                    <div>
+                                        ${isWatched ? 
+                                            `<span class="badge bg-success me-2"><i class="fas fa-check"></i> Ditonton</span>` : 
+                                            ''
+                                        }
+                                        <button class="btn btn-sm btn-outline-primary" onclick="playVideo('${animeTitle}', ${i})">
+                                            <i class="fas fa-play"></i> Tonton
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Create modal to show all episodes
+            const modalHTML = `
+                <div class="modal fade" id="episodesModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Semua Episode ${animeTitle}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    ${episodesHTML}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add modal to body
+            const modalContainer = document.createElement('div');
+            modalContainer.innerHTML = modalHTML;
+            document.body.appendChild(modalContainer);
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('episodesModal'));
+            modal.show();
+            
+            // Remove modal after hiding
+            document.getElementById('episodesModal').addEventListener('hidden.bs.modal', function() {
+                document.body.removeChild(modalContainer);
+            });
+        }
+        
+        function showFateCollection() {
+            const fateAnime = animeData.filter(anime => anime.title.includes("Fate"));
+            showFilteredResults(fateAnime, "Koleksi Fate Series");
+        }
+        
+        function toggleFavorite(animeId) {
+            if (!currentUser) {
+                alert('Anda harus login untuk menambahkan ke favorit!');
+                showLoginPage();
+                return;
+            }
+            
+            const animeIndex = animeData.findIndex(a => a.id === animeId);
+            if (animeIndex !== -1) {
+                animeData[animeIndex].isFavorite = !animeData[animeIndex].isFavorite;
+                localStorage.setItem('animeholic_anime', JSON.stringify(animeData));
+                
+                alert(animeData[animeIndex].isFavorite ? 
+                    'Anime ditambahkan ke favorit!' : 
+                    'Anime dihapus dari favorit!');
+                
+                if (currentPage === 'anime-detail' && currentAnime && currentAnime.id === animeId) {
+                    showPage('anime-detail', animeId);
+                }
+            }
+        }
+        
+        function toggleWatchlist(animeId) {
+            if (!currentUser) {
+                alert('Anda harus login untuk menambahkan ke watchlist!');
+                showLoginPage();
+                return;
+            }
+            
+            const animeIndex = animeData.findIndex(a => a.id === animeId);
+            if (animeIndex !== -1) {
+                animeData[animeIndex].inWatchlist = !animeData[animeIndex].inWatchlist;
+                localStorage.setItem('animeholic_anime', JSON.stringify(animeData));
+                
+                alert(animeData[animeIndex].inWatchlist ? 
+                    'Anime ditambahkan ke watchlist!' : 
+                    'Anime dihapus dari watchlist!');
+            }
+        }
+        
+        // Social functions
+        function shareMoment(animeTitle, episode) {
+            alert(`Berbagi momen dari "${animeTitle} Episode ${episode}"!`);
+        }
+        
+        function inviteToWatchParty(animeTitle, episode) {
+            alert(`Mengundang teman ke grup nonton "${animeTitle} Episode ${episode}"!`);
+        }
+        
+        function downloadEpisode(animeTitle, episode) {
+            alert(`Mengunduh "${animeTitle} Episode ${episode}" untuk ditonton offline!`);
+        }
+        
+        // Other page functions (simplified)
+        function showSocialPage() {
+            showPage('login');
+        }
+        
+        function showGroupsPage() {
+            showPage('login');
+        }
+        
+        function showProfilePage() {
+            showPage('login');
+        }
+        
+        function showLoginPage() {
+            const pageContent = document.getElementById('pageContent');
+            pageContent.innerHTML = `
+                <div class="container py-5">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6 col-lg-5">
+                            <div class="card">
+                                <div class="card-body p-4">
+                                    <h2 class="text-center mb-4">Login ke AnimeHolic</h2>
+                                    <p class="text-center text-secondary mb-4">Login untuk menonton anime favorit Anda</p>
+                                    <button class="btn btn-primary w-100 mb-3" onclick="demoLogin()">
+                                        <i class="fas fa-sign-in-alt me-1"></i> Login Demo
+                                    </button>
+                                    <div class="text-center">
+                                        <p class="mb-0">Belum punya akun? <a href="#" onclick="showPage('register')" class="text-accent">Daftar di sini</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function showRegisterPage() {
+            const pageContent = document.getElementById('pageContent');
+            pageContent.innerHTML = `
+                <div class="container py-5">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6 col-lg-5">
+                            <div class="card">
+                                <div class="card-body p-4">
+                                    <h2 class="text-center mb-4">Daftar Akun AnimeHolic</h2>
+                                    <p class="text-center text-secondary mb-4">Bergabunglah dengan komunitas penggemar anime</p>
+                                    <button class="btn btn-primary w-100 mb-3" onclick="demoRegister()">
+                                        <i class="fas fa-user-plus me-1"></i> Daftar Demo
+                                    </button>
+                                    <div class="text-center">
+                                        <p class="mb-0">Sudah punya akun? <a href="#" onclick="showPage('login')" class="text-accent">Login di sini</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function demoLogin() {
+            currentUser = { 
+                id: 1, 
+                name: "Penggemar Fate", 
+                email: "fatefan@example.com",
+                joined: new Date().toISOString()
+            };
+            localStorage.setItem('animeholic_current_user', JSON.stringify(currentUser));
+            updateAuthButtons(true);
+            alert('Login berhasil sebagai Penggemar Fate!');
+            showPage('home');
+        }
+        
+        function demoRegister() {
+            alert('Pendaftaran demo berhasil!');
+            showPage('login');
+        }
+        
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('animeholic_current_user');
+            updateAuthButtons(false);
+            alert('Anda telah logout!');
+            showPage('home');
+        }
+        
+        function handleScroll() {
+            const backToTopButton = document.getElementById('backToTop');
+            if (window.scrollY > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        }
+        
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        function registerServiceWorker() {
+            const swContent = `
+                self.addEventListener('install', event => {
+                    console.log('Service Worker installing.');
+                    self.skipWaiting();
+                });
+                
+                self.addEventListener('activate', event => {
+                    console.log('Service Worker activating.');
+                });
+                
+                self.addEventListener('fetch', event => {
+                    event.respondWith(
+                        caches.match(event.request)
+                            .then(response => {
+                                return response || fetch(event.request);
+                            })
+                    );
+                });
+            `;
+            
+            const blob = new Blob([swContent], { type: 'application/javascript' });
+            const swURL = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(swURL)
+                .then(registration => {
+                    console.log('Service Worker registered');
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
+        
+        // Initialize search input event listener
+        document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+    </script>
+</body>
+</html>

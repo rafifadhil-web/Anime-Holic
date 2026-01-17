@@ -1,0 +1,43 @@
+{
+  "id": "./",
+  "name": "Anime Holic",
+  "short_name": "AnimeHolic",
+  "description": "Aplikasi Streaming Anime Gaya Baru Dan Elegan.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#f8f9fa",
+  "orientation": "portrait",
+  "lang": "id",
+  "icons": [
+    {
+      "src": "img/AnimeHolic192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/AnimeHolic512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+ 
+  ],
+  "shortcuts": [
+    {
+      "name": "Buka Beranda",
+      "short_name": "Home",
+      "url": "./index.html",
+      "icons": [
+        {
+          "src": "img/AnimeHolic192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "categories": [
+    "productivity",
+    "utilities"
+  ]
+}
